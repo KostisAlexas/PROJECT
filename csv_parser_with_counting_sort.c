@@ -20,6 +20,7 @@ typedef struct {
     long long cumulative;
 } Record;
 
+
 // Counting Sort function
 void CountingSort(Record A[], Record B[], int n, long long k) {
     long long *C = (long long *)calloc(k + 1, sizeof(long long));
@@ -90,17 +91,21 @@ void parse_csv(char *filename, Record records[], int *record_count) {
     fclose(file);
 }
 
+// Function to print records
+void print_records(Record records[], int record_count) {
+    for (int i = 0; i < record_count; i++) {
+        printf("%s, %d, %s, %s, %s, %s, %s, %s, %lld, %lld\n",
+               records[i].direction, records[i].year, records[i].date,
+               records[i].weekday, records[i].country, records[i].commodity,
+               records[i].transport_mode, records[i].measure, records[i].value,
+               records[i].cumulative);
+    }
+}
 
 int main() {
     char filename[FILENAME_SIZE];
     printf("Enter the CSV file path: ");
-    fgets(filename, FILENAME_SIZE, stdin);
-
-    // Remove trailing newline character
-    size_t len = strlen(filename);
-    if (filename[len - 1] == '\n') {
-        filename[len - 1] = '\0';
-    }
+    scanf("%255s[^\n]", filename);  // Use scanf instead of fgets
 
     Record records[MAX_RECORDS];
     int record_count = 0;
@@ -120,6 +125,10 @@ int main() {
     CountingSort(records, sorted_records, record_count, max_value);
 
     printf("Parsed and sorted %d records.\n", record_count);
+
+    // Print the sorted records
+    printf("Sorted records:\n");
+    print_records(sorted_records, record_count);
 
     return 0;
 }
