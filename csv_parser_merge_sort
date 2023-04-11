@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+#define MAX_RECORDS 111438
+#define BUFFER_SIZE 4096
+#define FILENAME_SIZE 256
+
+typedef struct {
+    char direction[20];
+    int year;
+    char date[11];
+    char weekday[10];
+    char country[50];
+    char commodity[50];
+    char transport_mode[20];
+    char measure[10];
+    long long value;
+    long long cumulative;
+} Record;
+
+// Merge function
+void merge(Record arr[], int left, int mid, int right) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    Record L[n1], R[n2];
+
+    for (i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    i = 0;
+    j = 0;
+    k = left;
+    while (i < n1 && j < n2) {
+        if (L[i].value <= R[j].value) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+// Merge Sort function
+void MergeSort(Record arr[], int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        MergeSort(arr, left, mid);
+        MergeSort(arr, mid + 1, right);
+
+        merge(arr, left, mid, right);
+    }
+}
+
+// Existing code for parsing CSV file and other functions (parse_csv, print_records, and main) remains unchanged.
+void parse_csv(char *filename, Record records[], int *record_count) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        printf("Error opening file.\n");
+        exit(1);
+    }
+
+    char buffer[BUFFER_SIZE];
+    fgets(buffer, BUFFER_SIZE, file); // Read and ignore the header line
+
+    while (fgets(buffer, BUFFER_SIZE, file)) {
+        Record record;
+        char *token = strtok(buffer, ",");
+        strcpy(record.direction, token);
+
+        token = strtok(NULL, ",");
+        record.year = atoi(token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.date, token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.weekday, token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.country, token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.commodity, token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.transport_mode, token);
+
+        token = strtok(NULL, ",");
+        strcpy(record.measure, token);
+
+        token = strtok(NULL, ",");
+        record.value = atoll(token);
+
+        token = strtok(NULL, ",");
+        record.cumulative = atoll(token);
+
+        records[*record_count] = record;
+        (*record_count)++;
+    }
+
+    fclose(file);
+}
+
+// Function to print records
+void print_records(Record records[], int record_count) {
+    for (int i = 0; i < record_count; i++) {
+        printf("%s, %d, %s, %s, %s, %s, %s, %s, %lld, %lld\n",
+               records[i].direction, records[i].year, records[i].date,
+               records[i].weekday, records[i].country, records[i].commodity,
+               records[i].transport_mode, records[i].measure, records[i].value,
+               records[i].cumulative);
+    }
+}
+
+int main() {
+    // ... (the same as before)
+    char filename[FILENAME_SIZE];
+    printf("Enter the CSV file path: ");
+   // fflush(stdout); //forcing the message to show
+    fgets(filename, FILENAME_SIZE, stdin);
+    filename[strcspn(filename, "\n")] = '\0';  // Remove the newline character
+
+    Record records[MAX_RECORDS];
+    int record_count = 0;
+
+    parse_csv(filename, records, &record_count);
+
+    // Apply Merge Sort on the Value field
+    MergeSort(records, 0, record_count - 1);
+
+    printf("Parsed and sorted %d records.\n", record_count);
+
+    // Print the sorted records
+    printf("Sorted records:\n");
+    print_records(records, record_count);
+
+    return 0;
+}
