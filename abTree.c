@@ -170,7 +170,7 @@ Node *delete_node(Node *root, Date target_date) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc >= 2) {
         printf("Usage: %s <Records.csv>\n", argv[0]);
         return 1;
     }
