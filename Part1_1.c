@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 
+// Define the CsvRecord structure to store each record's information
 typedef struct {
     char direction[10];
     int year;
@@ -16,6 +17,7 @@ typedef struct {
     long int cumulative;
 } CsvRecord;
 
+// Parses a line from the CSV file and stores the data in a CsvRecord structure
 CsvRecord *parse_line(char *line) {
     CsvRecord *record = malloc(sizeof(CsvRecord));
     sscanf(line, "%[^,],%d,%[^,],%[^,],%[^,],\"%[^\"]\",%[^,],%[^,],%ld,%ld",
@@ -26,6 +28,7 @@ CsvRecord *parse_line(char *line) {
     return record;
 }
 
+// Reads the entire CSV file and returns an array of CsvRecord structures
 CsvRecord *parse_csv(const char *file, int *size) {
     FILE *fp = fopen(file, "r");
     if (fp == NULL) {
@@ -49,6 +52,7 @@ CsvRecord *parse_csv(const char *file, int *size) {
     return records;
 }
 
+// Finds the maximum "value" in the list of records
 long int find_max_value(CsvRecord *records, int size) {
     long int max_value = 0;
     for (int i = 0; i < size; ++i) {
@@ -59,6 +63,7 @@ long int find_max_value(CsvRecord *records, int size) {
     return max_value;
 }
 
+// Sorts the list of records using the counting sort algorithm based on their "value" field
 void counting_sort(CsvRecord *records, int size) {
     long int max_value = find_max_value(records, size);
     int *count = calloc(max_value + 1, sizeof(int));
@@ -82,6 +87,7 @@ void counting_sort(CsvRecord *records, int size) {
     free(count);
 }
 
+// Helper function for the merge sort algorithm; merges two sorted subarrays of records
 void merge(CsvRecord *records, int left, int mid, int right) {
     int i, j, k;
     int n1 = mid - left + 1;
@@ -125,6 +131,7 @@ void merge(CsvRecord *records, int left, int mid, int right) {
     free(R);
 }
 
+// Sorts the list of records using the merge sort algorithm based on their "value" field
 void merge_sort(CsvRecord *records, int left, int right) {
     if (left < right) {
         int mid = left + (right - left) / 2;
@@ -136,12 +143,14 @@ void merge_sort(CsvRecord *records, int left, int right) {
     }
 }
 
+// Prints the sorted records with their "date" and "value" fields
 void print_records(CsvRecord *records, int size) {
     for (int i = 0; i < size; ++i) {
         printf("%s: %ld\n", records[i].date, records[i].value);
     }
 }
 
+// Saves the sorted records to a new CSV file with the same format as the input file
 void save_records_to_file(CsvRecord *records, int size, const char *filename) {
     FILE *fp = fopen(filename, "w");
     if (fp == NULL) {
@@ -167,6 +176,7 @@ int main(int argc, char *argv[]) {
     const char *csv_file = "C:/Users/user/Desktop/PROJECT/Records.csv";
     int size;
 
+ // Read the CSV file and parse it into an array of CsvRecord structures
     CsvRecord *records = parse_csv(csv_file, &size);
     if (records == NULL) {
         return 1;
@@ -174,9 +184,11 @@ int main(int argc, char *argv[]) {
 
     int sort_choice;
 
+// Ask the user to choose a sorting algorithm (counting sort or merge sort)
     printf("Select the sorting algorithm (1 - Counting Sort, 2 - Merge Sort): ");
     scanf("%d", &sort_choice);
 
+// Sort the records using the chosen algorithm and measure the time it takes
     clock_t start = clock();
     if (sort_choice == 1) {
         counting_sort(records, size);
@@ -190,13 +202,16 @@ int main(int argc, char *argv[]) {
     clock_t end = clock();
     double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
 
+// Print the sorted records and the time taken for sorting
     printf("Sorting took %.2f seconds.\n\n", time_spent);
     print_records(records, size);
 
+// Ask the user if they want to save the sorted records to a new CSV file
     char choice;
     printf("Do you want to save the sorted data to a file? (y/n): ");
     scanf(" %c", &choice);
 
+ // If the user wants to save, prompt them to provide a file name and save the records in the specified directory
     if (choice == 'y' || choice == 'Y') {
         char filename[256];
         printf("\nCreate a name for your file: ");
@@ -211,6 +226,7 @@ int main(int argc, char *argv[]) {
         printf("\nData saved to %s\n\n", fullpath);
     }
 
+ // Free the memory allocated for the records
     free(records);
     return 0;
 }
