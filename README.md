@@ -1,2 +1,2 @@
 # PROJECT
-Αυτό είναι ένα test για να δούμε πώς δουλεύει το GitHub. Pls να βάζετε περιγραφικά ονόματα και να προσέχετε μην διαγράψετε τα πάντα.
+A school project on data structures 4th semsester CEID
